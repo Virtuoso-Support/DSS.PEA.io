@@ -74,9 +74,9 @@
                         </div>
                     </div>
                     <div class="md:col-span-2 text-right text-sm pt-2">
-                        <span class="text-gray-500 mr-2">ราคา:</span><span id="newReq_size_price">0.00</span>
+                        <span class="text-gray-500 mr-2">ราคา(บาท):</span><span id="newReq_size_price">0.00</span>
                     </div>
-                    <div class="md:col-span-1 text-right text-sm text-gray-500 pt-2">VAT 7%</div>
+                    <div class="md:col-span-1 text-right text-sm text-gray-500 pt-2">VAT(บาท):</span><span class="font-semibold text-gray-800" id="upg_newTou_vat">0.00</span></div>
                     <div class="md:col-span-2 text-right font-semibold text-sm text-gray-800 bg-gray-50 p-2 rounded border" id="newReq_size_total">0.00</div>
                 </div>
                 
@@ -90,19 +90,19 @@
                         </div>
                     </div>
                     <div class="md:col-span-2 text-right text-sm pt-2">
-                        <span class="text-gray-500 mr-2">ราคา:</span><span id="newReq_tou_price">0.00</span>
+                        <span class="text-gray-500 mr-2">ราคา(บาท):</span><span id="newReq_tou_price">0.00</span>
                     </div>
-                    <div class="md:col-span-1 text-right text-sm text-gray-500 pt-2">VAT 7%</div>
+                    <div class="md:col-span-1 text-right text-sm text-gray-500 pt-2">VAT(บาท):</span><span class="font-semibold text-gray-800" id="upg_newTou_vat">0.00</span></div>
                     <div class="md:col-span-2 text-right font-semibold text-sm text-gray-800 bg-gray-50 p-2 rounded border" id="newReq_tou_total">0.00</div>
                 </div>
 
                 <div class="mt-6 flex flex-col md:flex-row justify-end items-end md:items-center bg-[#a3b881]/20 p-4 rounded-lg border border-[#8b9e6c]">
                     <div class="text-right text-sm text-gray-600 mr-6 mb-2 md:mb-0">
-                        <div>รวมเงินฐาน: <span id="totalNewBase">0.00</span> บาท</div>
-                        <div>รวม VAT 7%: <span id="totalNewVat">0.00</span> บาท</div>
+                        <div>รวมยอดสุทธิ: <span id="totalNewBase">0.00</span> บาท</div>
+                        <div>ภาษีมูลค่าเพิ่ม (VAT 7%): <span id="totalNewVat">0.00</span> บาท</div>
                     </div>
                     <div class="flex items-center">
-                        <span class="text-lg font-bold text-gray-700 mr-4">รวมทั้งสิ้น:</span>
+                        <span class="text-lg font-bold text-gray-700 mr-4">รวมต้องชำระทั้งสิ้น:</span>
                         <span class="text-2xl font-bold text-green-700"><span id="totalNew">0.00</span> บาท</span>
                     </div>
                 </div>
@@ -187,7 +187,7 @@
                     <span class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 text-xs font-bold rounded-bl-lg rounded-tr-lg">ส่วนต่างที่จะเกิดขึ้น</span>
                     
                     <h3 class="font-bold text-blue-800 mb-4 flex items-center">
-                        <span class="bg-blue-500 text-white w-6 h-6 rounded-full inline-flex items-center justify-center mr-2 text-sm">2</span> มิเตอร์ใหม่ (กรณีขอเพิ่มขนาด/เปลี่ยนประเภท)
+                        <span class="bg-blue-500 text-white w-6 h-6 rounded-full inline-flex items-center justify-center mr-2 text-sm">2</span> มิเตอร์ใหม่ (ขอใหม่/ขอเพิ่มขนาด/เปลี่ยนประเภท)
                     </h3>
                     
                     <!-- ขนาดมิเตอร์ใหม่ -->
@@ -244,7 +244,7 @@
                 <div class="mt-6 flex flex-col md:flex-row justify-between items-center bg-[#a3b881]/20 p-4 md:p-6 rounded-lg border-2 border-[#8b9e6c]">
                     <div class="text-sm text-gray-600 mb-4 md:mb-0">
                         <div class="font-bold mb-1 text-gray-800">สรุปการชำระเงินส่วนเพิ่มรวมภาษี</div>
-                        <div>ยอดเงินส่วนเพิ่ม / ค่าบริการ: <span id="totalUpgradeBase">0.00</span> บาท</div>
+                        <div>รวมยอดสุทธิ: <span id="totalUpgradeBase">0.00</span> บาท</div>
                         <div>ภาษีมูลค่าเพิ่ม (VAT 7%): <span id="totalUpgradeVat">0.00</span> บาท</div>
                     </div>
                     <div class="text-right w-full md:w-auto bg-white p-3 rounded shadow-sm border border-green-200">
