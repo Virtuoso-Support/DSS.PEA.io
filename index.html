@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบคำนวณอัตราค่ามิเตอร์ไฟฟ้า</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animation to mimic React's animate-fadeIn */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        /* Hide element class */
+        .hidden-tab {
+            display: none !important;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fallback for Thai fonts */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-2 md:p-4 font-sans flex flex-col items-center min-h-screen">
+
+    <div class="w-full max-w-5xl bg-white rounded-xl shadow-lg overflow-hidden">
+        
+        <!-- Header พร้อม Credit -->
+        <div class="bg-[#8b9e6c] text-white p-5 text-center relative flex flex-col items-center justify-center">
+            <div class="font-bold text-xl md:text-2xl">ระบบคำนวณอัตราค่ามิเตอร์ไฟฟ้า</div>
+            <div class="text-xs md:text-sm text-[#d1dfbd] mt-1 md:absolute md:right-4 md:bottom-2">
+                Credit by 515257
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="flex flex-col md:flex-row border-b">
+            <button id="btn-tab-new" class="flex-1 py-3 px-4 text-sm md:text-base font-semibold bg-[#a3b881] text-white transition-colors">
+                ผู้ขอใช้ไฟฟ้ารายใหม่ (ติดตั้งมิเตอร์ใหม่)
+            </button>
+            <button id="btn-tab-upg" class="flex-1 py-3 px-4 text-sm md:text-base font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                เพิ่มขนาด / เปลี่ยนประเภท / ย้ายจุด 
+            </button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="p-4 md:p-6">
+
+            <!-- ปุ่ม Reset ล้างข้อมูล -->
+            <div class="flex justify-end mb-4">
+                <button id="btn-reset" class="flex items-center text-sm bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-3 py-1.5 rounded border border-red-200 transition-colors shadow-sm" title="ล้างข้อมูลการกรอกทั้งหมดกลับไปเป็นค่าเริ่มต้น">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    ล้างข้อมูล (Reset)
+                </button>
+            </div>
+            
+            <!-- TAB 1: ขอใหม่ -->
+            <div id="tab-content-new" class="space-y-4 animate-fadeIn">
+                <div class="bg-green-50 text-green-800 p-3 rounded text-sm mb-4 border border-green-200">
+                    💡 สำหรับผู้ขอใช้ไฟฟ้ารายใหม่ (Sap System Service Map)
+                </div>
+                
+                <!-- DataRowNew: ขนาดมิเตอร์ -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-start py-3 border-b border-gray-100">
+                    <div class="md:col-span-3 text-sm font-medium text-gray-700 pt-2">ขนาดมิเตอร์</div>
+                    <div class="md:col-span-4">
+                        <select id="newReq_size" class="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500 text-sm"></select>
+                        <div id="newReq_size_code_wrap" class="mt-1 inline-flex items-center bg-blue-50 border border-blue-200 text-blue-700 text-xs px-2 py-1 rounded hidden">
+                            <span class="font-semibold font-mono">Service Map: <span id="newReq_size_code"></span></span>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 text-right text-sm pt-2">
+                        <span class="text-gray-500 mr-2">ราคา:</span><span id="newReq_size_price">0.00</span>
+                    </div>
+                    <div class="md:col-span-1 text-right text-sm text-gray-500 pt-2">VAT 7%</div>
+                    <div class="md:col-span-2 text-right font-semibold text-sm text-gray-800 bg-gray-50 p-2 rounded border" id="newReq_size_total">0.00</div>
+                </div>
+                
+                <!-- DataRowNew: ประเภทมิเตอร์ TOU -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-start py-3 border-b border-gray-100">
+                    <div class="md:col-span-3 text-sm font-medium text-gray-700 pt-2">ประเภทมิเตอร์ TOU</div>
+                    <div class="md:col-span-4">
+                        <select id="newReq_tou" class="w-full p-2 border border-gray-300 rounded focus:ring-green-500 focus:border-green-500 text-sm"></select>
+                        <div id="newReq_tou_code_wrap" class="mt-1 inline-flex items-center bg-blue-50 border border-blue-200 text-blue-700 text-xs px-2 py-1 rounded hidden">
+                            <span class="font-semibold font-mono">Service Map: <span id="newReq_tou_code"></span></span>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 text-right text-sm pt-2">
+                        <span class="text-gray-500 mr-2">ราคา:</span><span id="newReq_tou_price">0.00</span>
+                    </div>
+                    <div class="md:col-span-1 text-right text-sm text-gray-500 pt-2">VAT 7%</div>
+                    <div class="md:col-span-2 text-right font-semibold text-sm text-gray-800 bg-gray-50 p-2 rounded border" id="newReq_tou_total">0.00</div>
+                </div>
+
+                <div class="mt-6 flex flex-col md:flex-row justify-end items-end md:items-center bg-[#a3b881]/20 p-4 rounded-lg border border-[#8b9e6c]">
+                    <div class="text-right text-sm text-gray-600 mr-6 mb-2 md:mb-0">
+                        <div>รวมเงินฐาน: <span id="totalNewBase">0.00</span> บาท</div>
+                        <div>รวม VAT 7%: <span id="totalNewVat">0.00</span> บาท</div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-lg font-bold text-gray-700 mr-4">รวมทั้งสิ้น:</span>
+                        <span class="text-2xl font-bold text-green-700"><span id="totalNew">0.00</span> บาท</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: เพิ่มขนาด / ย้าย (คำนวณหักลบ) -->
+            <div id="tab-content-upg" class="space-y-6 animate-fadeIn hidden-tab">
+                
+                <!-- Section 1: มิเตอร์เดิม & ย้ายจุด -->
+                <div class="bg-gray-50 p-4 md:p-6 rounded-lg border border-gray-200 shadow-sm relative">
+                    <span class="absolute top-0 right-0 bg-gray-400 text-white px-3 py-1 text-xs font-bold rounded-bl-lg rounded-tr-lg">ข้อมูลตั้งต้น & บริการเพิ่มเติม</span>
+                    
+                    <h3 class="font-bold text-gray-700 mb-4 flex items-center">
+                        <span class="bg-gray-500 text-white w-6 h-6 rounded-full inline-flex items-center justify-center mr-2 text-sm">1</span> ข้อมูลมิเตอร์เดิม
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center mb-4 pb-4 border-b border-gray-200">
+                        <div class="md:col-span-3 text-sm font-medium text-gray-700">ปีติดตั้งมิเตอร์เดิม</div>
+                        <div class="md:col-span-9 flex flex-col sm:flex-row sm:space-x-6 space-y-2 sm:space-y-0">
+                            <label class="flex items-center space-x-2 cursor-pointer bg-white px-3 py-2 rounded border border-gray-300 hover:bg-gray-50">
+                                <input type="radio" name="oldYear" value="before2563" checked class="text-green-600 focus:ring-green-500 w-4 h-4">
+                                <span class="text-sm font-medium">ก่อนปี 2563/2020</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer bg-white px-3 py-2 rounded border border-gray-300 hover:bg-gray-50">
+                                <input type="radio" name="oldYear" value="after2563" class="text-green-600 focus:ring-green-500 w-4 h-4">
+                                <span class="text-sm font-medium">หลังปี 2563/2020</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-center py-2">
+                        <div class="md:col-span-3 text-sm font-medium text-gray-700">ขนาดมิเตอร์เดิม</div>
+                        <div class="md:col-span-4">
+                            <select id="upg_oldSize" class="w-full p-2 border border-gray-300 rounded focus:ring-gray-400 text-sm bg-white shadow-sm"></select>
+                        </div>
+                        <div class="md:col-span-5 text-sm text-gray-500 text-right">
+                            มูลค่าเดิมนำไปหักลบ: <span class="font-semibold text-gray-700" id="oldSizeBaseDisplay">0.00</span> บาท
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-center py-2">
+                        <div class="md:col-span-3 text-sm font-medium text-gray-700">ประเภท TOU เดิม</div>
+                        <div class="md:col-span-4">
+                            <select id="upg_oldTou" class="w-full p-2 border border-gray-300 rounded focus:ring-gray-400 text-sm bg-white shadow-sm"></select>
+                        </div>
+                        <div class="md:col-span-5 text-sm text-gray-500 text-right">
+                            มูลค่าเดิมนำไปหักลบ: <span class="font-semibold text-gray-700" id="oldTouBaseDisplay">0.00</span> บาท
+                        </div>
+                    </div>
+
+                    <!-- บริการเสริม: ย้ายจุด -->
+                    <div class="mt-6 pt-4 border-t border-gray-300">
+                        <h4 class="text-sm font-bold text-gray-700 mb-2">บริการเสริม (ดำเนินการกับมิเตอร์เดิม)</h4>
+                        
+                        <div class="py-3 border-b border-gray-200/60 last:border-0">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-start mb-2">
+                                <div class="md:col-span-3 text-sm font-medium text-gray-700 pt-2">การย้ายจุดติดตั้งมิเตอร์</div>
+                                <div class="md:col-span-4">
+                                    <select id="upg_relocate" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-sm"></select>
+                                    <div id="upg_relocate_code_wrap" class="mt-1 inline-flex items-center bg-blue-50 border border-blue-200 text-blue-700 text-xs px-2 py-1 rounded hidden">
+                                        <span class="font-semibold font-mono">Service Map: <span id="upg_relocate_code"></span></span>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-5 text-sm text-right flex flex-col md:flex-row justify-end items-end space-y-1 md:space-y-0 md:space-x-4 pt-2">
+                                    <div class="text-gray-500">ราคา: <span id="upg_relocate_price">0.00</span></div>
+                                </div>
+                            </div>
+                            <div class="flex justify-end mt-2">
+                                <div class="bg-white border border-gray-200 rounded p-2 flex space-x-6 w-full md:w-auto shadow-sm">
+                                    <div class="text-sm"><span class="text-gray-500 mr-2">ค่าบริการ(บาท):</span><span class="font-semibold text-gray-800" id="upg_relocate_diff">0.00</span></div>
+                                    <div class="text-sm"><span class="text-gray-500 mr-2">VAT(บาท):</span><span class="font-semibold text-gray-800" id="upg_relocate_vat">0.00</span></div>
+                                    <div class="text-sm border-l pl-4 border-gray-200"><span class="text-gray-500 mr-2">รวม(บาท):</span><span class="font-bold text-green-700" id="upg_relocate_total">0.00</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Section 2: คำร้องใหม่ -->
+                <div class="bg-blue-50 p-4 md:p-6 rounded-lg border border-blue-200 shadow-sm relative">
+                    <span class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 text-xs font-bold rounded-bl-lg rounded-tr-lg">ส่วนต่างที่จะเกิดขึ้น</span>
+                    
+                    <h3 class="font-bold text-blue-800 mb-4 flex items-center">
+                        <span class="bg-blue-500 text-white w-6 h-6 rounded-full inline-flex items-center justify-center mr-2 text-sm">2</span> มิเตอร์ใหม่ (กรณีขอเพิ่มขนาด/เปลี่ยนประเภท)
+                    </h3>
+                    
+                    <!-- ขนาดมิเตอร์ใหม่ -->
+                    <div class="py-3 border-b border-gray-200/60 last:border-0">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-start mb-2">
+                            <div class="md:col-span-3 text-sm font-medium text-gray-700 pt-2">ขนาดมิเตอร์ใหม่</div>
+                            <div class="md:col-span-4">
+                                <select id="upg_newSize" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-sm"></select>
+                                <div id="upg_newSize_code_wrap" class="mt-1 inline-flex items-center bg-blue-50 border border-blue-200 text-blue-700 text-xs px-2 py-1 rounded hidden">
+                                    <span class="font-semibold font-mono">Service Map: <span id="upg_newSize_code"></span></span>
+                                </div>
+                            </div>
+                            <div class="md:col-span-5 text-sm text-right flex flex-col md:flex-row justify-end items-end space-y-1 md:space-y-0 md:space-x-4 pt-2">
+                                <div class="text-gray-500">ราคา: <span id="upg_newSize_price">0.00</span></div>
+                                <div class="text-red-500">- หักเดิม: <span id="upg_newSize_deduct">0.00</span></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end mt-2">
+                            <div class="bg-white border border-gray-200 rounded p-2 flex space-x-6 w-full md:w-auto shadow-sm">
+                                <div class="text-sm"><span class="text-gray-500 mr-2">ส่วนต่าง(บาท):</span><span class="font-semibold text-gray-800" id="upg_newSize_diff">0.00</span></div>
+                                <div class="text-sm"><span class="text-gray-500 mr-2">VAT(บาท):</span><span class="font-semibold text-gray-800" id="upg_newSize_vat">0.00</span></div>
+                                <div class="text-sm border-l pl-4 border-gray-200"><span class="text-gray-500 mr-2">รวม(บาท):</span><span class="font-bold text-green-700" id="upg_newSize_total">0.00</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ประเภท TOU ใหม่ -->
+                    <div class="py-3 border-b border-gray-200/60 last:border-0">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-start mb-2">
+                            <div class="md:col-span-3 text-sm font-medium text-gray-700 pt-2">ประเภท TOU ใหม่</div>
+                            <div class="md:col-span-4">
+                                <select id="upg_newTou" class="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-sm"></select>
+                                <div id="upg_newTou_code_wrap" class="mt-1 inline-flex items-center bg-blue-50 border border-blue-200 text-blue-700 text-xs px-2 py-1 rounded hidden">
+                                    <span class="font-semibold font-mono">Service Map: <span id="upg_newTou_code"></span></span>
+                                </div>
+                            </div>
+                            <div class="md:col-span-5 text-sm text-right flex flex-col md:flex-row justify-end items-end space-y-1 md:space-y-0 md:space-x-4 pt-2">
+                                <div class="text-gray-500">ราคา: <span id="upg_newTou_price">0.00</span></div>
+                                <div class="text-red-500">- หักเดิม: <span id="upg_newTou_deduct">0.00</span></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end mt-2">
+                            <div class="bg-white border border-gray-200 rounded p-2 flex space-x-6 w-full md:w-auto shadow-sm">
+                                <div class="text-sm"><span class="text-gray-500 mr-2">ส่วนต่าง(บาท):</span><span class="font-semibold text-gray-800" id="upg_newTou_diff">0.00</span></div>
+                                <div class="text-sm"><span class="text-gray-500 mr-2">VAT(บาท):</span><span class="font-semibold text-gray-800" id="upg_newTou_vat">0.00</span></div>
+                                <div class="text-sm border-l pl-4 border-gray-200"><span class="text-gray-500 mr-2">รวม(บาท):</span><span class="font-bold text-green-700" id="upg_newTou_total">0.00</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Total Sum -->
+                <div class="mt-6 flex flex-col md:flex-row justify-between items-center bg-[#a3b881]/20 p-4 md:p-6 rounded-lg border-2 border-[#8b9e6c]">
+                    <div class="text-sm text-gray-600 mb-4 md:mb-0">
+                        <div class="font-bold mb-1 text-gray-800">สรุปการชำระเงินส่วนเพิ่มรวมภาษี</div>
+                        <div>ยอดเงินส่วนเพิ่ม / ค่าบริการ: <span id="totalUpgradeBase">0.00</span> บาท</div>
+                        <div>ภาษีมูลค่าเพิ่ม (VAT 7%): <span id="totalUpgradeVat">0.00</span> บาท</div>
+                    </div>
+                    <div class="text-right w-full md:w-auto bg-white p-3 rounded shadow-sm border border-green-200">
+                        <div class="text-lg font-bold text-gray-700 mr-4 inline-block">รวมต้องชำระทั้งสิ้น:</div>
+                        <div class="text-3xl font-bold text-green-700 inline-block"><span id="totalUpgrade">0.00</span> บาท</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Footer Credit -->
+        <div class="bg-gray-50 border-t border-gray-200 p-3 text-center text-xs text-gray-500">
+            Version Beta Tester Credit by 515257
+        </div>
+
+    </div>
+
+    <script>
+        // --- ฐานข้อมูล ---
+        const data = {
+            meterSizes: [
+                { name: "โปรดระบุ", priceOld: 0, priceNew: 0, smCode: "" },
+                { name: "1 เฟส 5(15)A", priceOld: 100, priceNew: 100, smCode: "S-1C-002" },
+                { name: "1 เฟส 15(45)A", priceOld: 200, priceNew: 700, smCode: "S-1C-004" },
+                { name: "1 เฟส 30(100)A", priceOld: 400, priceNew: 700, smCode: "S-1C-007" },
+                { name: "3 เฟส 15(45)A", priceOld: 600, priceNew: 700, smCode: "S-1C-010" },
+                { name: "3 เฟส 30(100)A", priceOld: 1200, priceNew: 1500, smCode: "S-1C-013" }
+            ],
+            touTypes: [
+                { name: "โปรดระบุ", price: 0, smCode: "" },
+                { name: "มิเตอร์แรงต่ำ 1 เฟส", price: 3300, smCode: "S-1E-001" },
+                { name: "มิเตอร์แรงต่ำ 3 เฟส", price: 3750, smCode: "S-1E-002" },
+                { name: "มิเตอร์ประกอบซีที 1 เฟส", price: 3500, smCode: "S-1E-005" },
+                { name: "มิเตอร์ประกอบซีที 3 เฟส", price: 3550, smCode: "S-1E-006" },
+                { name: "มิเตอร์แรงสูง 22-33 เควี", price: 4050, smCode: "S-1E-003" }
+            ],
+            relocateTypes: [
+                { name: "โปรดระบุ", price: 0, smCode: "" },
+                { name: "มิเตอร์แรงต่ำ 1 เฟส", price: 100, smCode: "S-1F-001" },
+                { name: "มิเตอร์แรงต่ำ 3 เฟส", price: 150, smCode: "S-1F-002" },
+                { name: "มิเตอร์ประกอบซีที 1 เฟส", price: 500, smCode: "S-1F-003" },
+                { name: "มิเตอร์ประกอบซีที 3 เฟส", price: 2000, smCode: "S-1F-004" }
+            ]
+        };
+
+        // ฟังก์ชันช่วยจัดรูปแบบตัวเลข
+        const formatCurrency = (num) => {
+            const val = Number(num);
+            if (isNaN(val)) return '0.00';
+            return val.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
+
+        // ฟังก์ชันดึงข้อมูลแบบครบวงจร
+        const getMeterData = (sizeName) => data.meterSizes.find(s => s.name === sizeName) || data.meterSizes[0];
+        const getTouData = (touName) => data.touTypes.find(t => t.name === touName) || data.touTypes[0];
+        const getRelocateData = (relocateName) => data.relocateTypes.find(r => r.name === relocateName) || data.relocateTypes[0];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Helper เพื่อเติม Option ลงใน Select พร้อมรักษาสถานะเดิม ---
+            const populateSelect = (elementId, optionsArray, selectedValue = null) => {
+                const select = document.getElementById(elementId);
+                const valueToKeep = selectedValue !== null ? selectedValue : select.value;
+                
+                // ตรวจสอบว่า options เปลี่ยนแปลงหรือไม่ เพื่อลดการกระพริบของ UI
+                const currentOptions = Array.from(select.options).map(opt => opt.value);
+                const newOptions = optionsArray.map(opt => opt.name);
+                const isSame = currentOptions.length === newOptions.length && currentOptions.every((val, index) => val === newOptions[index]);
+                
+                if (!isSame) {
+                    select.innerHTML = '';
+                    let valueExists = false;
+                    optionsArray.forEach(opt => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = opt.name;
+                        optionElement.textContent = opt.name;
+                        select.appendChild(optionElement);
+                        if (opt.name === valueToKeep) valueExists = true;
+                    });
+                    // ถ้าค่าเดิมยังอยู่ในตัวเลือกที่กรองมา ให้เลือกค่าเดิม ถ้าไม่มีให้กลับไปค่าเริ่มต้น ("ไม่มี")
+                    select.value = valueExists ? valueToKeep : optionsArray[0].name;
+                } else {
+                    select.value = valueToKeep;
+                }
+            };
+
+            // --- ฟังก์ชันป้องกันการเลือกเฟสขัดแย้งกัน (Phase Lock) ---
+            const getPhase = (name) => {
+                if (!name || name === "ไม่มี") return 0;
+                if (name.includes("1 เฟส")) return 1;
+                // 22-33 เควี ถือเป็น 3 เฟส (แรงสูง)
+                if (name.includes("3 เฟส") || name.includes("22-33 เควี")) return 3;
+                return 0;
+            };
+
+            const filterOptionsByPhase = (options, phase) => {
+                if (phase === 0) return options;
+                return options.filter(opt => getPhase(opt.name) === 0 || getPhase(opt.name) === phase);
+            };
+
+            const applyPhaseGroupLock = (elementIds, dataArrays) => {
+                let activePhase = 0;
+                const currentVals = elementIds.map(id => document.getElementById(id).value);
+                
+                // หาว่ามีการเลือกเฟสอะไรอยู่บ้าง
+                for (const val of currentVals) {
+                    const phase = getPhase(val);
+                    if (phase !== 0) {
+                        activePhase = phase;
+                        break; // ยึดเฟสแรกที่เจอเป็นหลัก
+                    }
+                }
+
+                // อัปเดต dropdown ทุกตัวในกลุ่มให้แสดงเฉพาะเฟสที่ตรงกัน
+                elementIds.forEach((id, index) => {
+                    populateSelect(id, filterOptionsByPhase(dataArrays[index], activePhase), currentVals[index]);
+                });
+            };
+
+            // เติมข้อมูลลง Select ทั้งหมด
+            populateSelect('newReq_size', data.meterSizes);
+            populateSelect('newReq_tou', data.touTypes);
+            populateSelect('upg_oldSize', data.meterSizes);
+            populateSelect('upg_oldTou', data.touTypes);
+            populateSelect('upg_newSize', data.meterSizes);
+            populateSelect('upg_newTou', data.touTypes);
+            populateSelect('upg_relocate', data.relocateTypes);
+
+            // --- จัดการ Tabs ---
+            const btnTabNew = document.getElementById('btn-tab-new');
+            const btnTabUpg = document.getElementById('btn-tab-upg');
+            const contentNew = document.getElementById('tab-content-new');
+            const contentUpg = document.getElementById('tab-content-upg');
+
+            const activeTabClass = ['bg-[#a3b881]', 'text-white'];
+            const inactiveTabClass = ['bg-gray-100', 'text-gray-600', 'hover:bg-gray-200'];
+
+            const switchTab = (tab) => {
+                if (tab === 'new') {
+                    contentNew.classList.remove('hidden-tab');
+                    contentUpg.classList.add('hidden-tab');
+                    
+                    btnTabNew.classList.add(...activeTabClass);
+                    btnTabNew.classList.remove(...inactiveTabClass);
+                    
+                    btnTabUpg.classList.remove(...activeTabClass);
+                    btnTabUpg.classList.add(...inactiveTabClass);
+                } else {
+                    contentUpg.classList.remove('hidden-tab');
+                    contentNew.classList.add('hidden-tab');
+                    
+                    btnTabUpg.classList.add(...activeTabClass);
+                    btnTabUpg.classList.remove(...inactiveTabClass);
+                    
+                    btnTabNew.classList.remove(...activeTabClass);
+                    btnTabNew.classList.add(...inactiveTabClass);
+                }
+            };
+
+            btnTabNew.addEventListener('click', () => switchTab('new'));
+            btnTabUpg.addEventListener('click', () => switchTab('upgrade'));
+
+            // --- คำนวณยอดรวมแท็บ ขอใหม่ ---
+            const calculateNewTab = () => {
+                // กรองตัวเลือกไม่ให้เลือกเฟสขัดแย้งกัน
+                applyPhaseGroupLock(['newReq_size', 'newReq_tou'], [data.meterSizes, data.touTypes]);
+
+                const sizeName = document.getElementById('newReq_size').value;
+                const touName = document.getElementById('newReq_tou').value;
+
+                const sizeData = getMeterData(sizeName);
+                const touData = getTouData(touName);
+
+                // Update UI for Size
+                document.getElementById('newReq_size_code').textContent = sizeData.smCode;
+                document.getElementById('newReq_size_code_wrap').style.display = sizeData.smCode ? 'inline-flex' : 'none';
+                document.getElementById('newReq_size_price').textContent = formatCurrency(sizeData.priceNew);
+                document.getElementById('newReq_size_total').textContent = formatCurrency(sizeData.priceNew * 1.07);
+
+                // Update UI for TOU
+                document.getElementById('newReq_tou_code').textContent = touData.smCode;
+                document.getElementById('newReq_tou_code_wrap').style.display = touData.smCode ? 'inline-flex' : 'none';
+                document.getElementById('newReq_tou_price').textContent = formatCurrency(touData.price);
+                document.getElementById('newReq_tou_total').textContent = formatCurrency(touData.price * 1.07);
+
+                // Totals
+                const totalNewBase = sizeData.priceNew + touData.price;
+                const totalNewVat = totalNewBase * 0.07;
+                const totalNew = totalNewBase + totalNewVat;
+
+                document.getElementById('totalNewBase').textContent = formatCurrency(totalNewBase);
+                document.getElementById('totalNewVat').textContent = formatCurrency(totalNewVat);
+                document.getElementById('totalNew').textContent = formatCurrency(totalNew);
+            };
+
+            // --- คำนวณยอดรวมแท็บ เพิ่มขนาด ---
+            const calculateUpgradeTab = () => {
+                // กรองตัวเลือกไม่ให้เลือกเฟสขัดแย้งกัน
+                // กลุ่มข้อมูลมิเตอร์เดิม & ย้ายจุด
+                applyPhaseGroupLock(['upg_oldSize', 'upg_oldTou', 'upg_relocate'], [data.meterSizes, data.touTypes, data.relocateTypes]);
+                // กลุ่มข้อมูลมิเตอร์ใหม่
+                applyPhaseGroupLock(['upg_newSize', 'upg_newTou'], [data.meterSizes, data.touTypes]);
+
+                const isOld = document.querySelector('input[name="oldYear"]:checked').value === 'before2563';
+                
+                const oldSizeName = document.getElementById('upg_oldSize').value;
+                const oldTouName = document.getElementById('upg_oldTou').value;
+                const newSizeName = document.getElementById('upg_newSize').value;
+                const newTouName = document.getElementById('upg_newTou').value;
+                const relocateName = document.getElementById('upg_relocate').value;
+
+                // Base values to deduct
+                const oldSizeBase = isOld ? getMeterData(oldSizeName).priceOld : getMeterData(oldSizeName).priceNew;
+                const oldTouBase = getTouData(oldTouName).price;
+
+                document.getElementById('oldSizeBaseDisplay').textContent = formatCurrency(oldSizeBase);
+                document.getElementById('oldTouBaseDisplay').textContent = formatCurrency(oldTouBase);
+
+                // Data objects
+                const reqNewSizeData = getMeterData(newSizeName);
+                const reqNewTouData = getTouData(newTouName);
+                const reqRelocateData = getRelocateData(relocateName);
+
+                // Helper to update an upgrade row
+                const updateUpgradeRow = (prefix, dataObj, oldBaseVal, isReloc) => {
+                    const priceBase = dataObj.price !== undefined ? dataObj.price : dataObj.priceNew;
+                    const diff = Math.max(0, priceBase - (isReloc ? 0 : oldBaseVal));
+                    const vat = diff * 0.07;
+                    const total = diff + vat;
+
+                    if(document.getElementById(`${prefix}_code`)) {
+                        document.getElementById(`${prefix}_code`).textContent = dataObj.smCode;
+                        document.getElementById(`${prefix}_code_wrap`).style.display = dataObj.smCode ? 'inline-flex' : 'none';
+                    }
+                    
+                    document.getElementById(`${prefix}_price`).textContent = formatCurrency(priceBase);
+                    if(!isReloc) document.getElementById(`${prefix}_deduct`).textContent = formatCurrency(oldBaseVal);
+                    
+                    document.getElementById(`${prefix}_diff`).textContent = formatCurrency(diff);
+                    document.getElementById(`${prefix}_vat`).textContent = formatCurrency(vat);
+                    document.getElementById(`${prefix}_total`).textContent = formatCurrency(total);
+
+                    return diff;
+                };
+
+                const diffRelocateBase = updateUpgradeRow('upg_relocate', reqRelocateData, 0, true);
+                const diffSizeBase = updateUpgradeRow('upg_newSize', reqNewSizeData, oldSizeBase, false);
+                const diffTouBase = updateUpgradeRow('upg_newTou', reqNewTouData, oldTouBase, false);
+
+                // Totals
+                const totalUpgradeBase = diffSizeBase + diffTouBase + diffRelocateBase;
+                const totalUpgradeVat = totalUpgradeBase * 0.07;
+                const totalUpgrade = totalUpgradeBase + totalUpgradeVat;
+
+                document.getElementById('totalUpgradeBase').textContent = formatCurrency(totalUpgradeBase);
+                document.getElementById('totalUpgradeVat').textContent = formatCurrency(totalUpgradeVat);
+                document.getElementById('totalUpgrade').textContent = formatCurrency(totalUpgrade);
+            };
+
+            // --- ผูก Event Listeners ---
+            document.getElementById('newReq_size').addEventListener('change', calculateNewTab);
+            document.getElementById('newReq_tou').addEventListener('change', calculateNewTab);
+
+            document.querySelectorAll('input[name="oldYear"]').forEach(radio => radio.addEventListener('change', calculateUpgradeTab));
+            document.getElementById('upg_oldSize').addEventListener('change', calculateUpgradeTab);
+            document.getElementById('upg_oldTou').addEventListener('change', calculateUpgradeTab);
+            document.getElementById('upg_newSize').addEventListener('change', calculateUpgradeTab);
+            document.getElementById('upg_newTou').addEventListener('change', calculateUpgradeTab);
+            document.getElementById('upg_relocate').addEventListener('change', calculateUpgradeTab);
+
+            // --- ฟังก์ชันรีเซ็ต ---
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                document.getElementById('newReq_size').selectedIndex = 0;
+                document.getElementById('newReq_tou').selectedIndex = 0;
+                
+                document.querySelector('input[name="oldYear"][value="before2563"]').checked = true;
+                document.getElementById('upg_oldSize').selectedIndex = 0;
+                document.getElementById('upg_oldTou').selectedIndex = 0;
+                document.getElementById('upg_newSize').selectedIndex = 0;
+                document.getElementById('upg_newTou').selectedIndex = 0;
+                document.getElementById('upg_relocate').selectedIndex = 0;
+
+                calculateNewTab();
+                calculateUpgradeTab();
+            });
+
+            // Initial calculation
+            calculateNewTab();
+            calculateUpgradeTab();
+        });
+    </script>
+</body>
+</html>
